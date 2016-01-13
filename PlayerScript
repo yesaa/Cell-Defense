@@ -34,14 +34,20 @@ public class PlayerScript : MonoBehaviour {
     public void ChangeSize(float val)
     {
         _size += val;
-        transform.localScale = new Vector3(_size * 0.1f, _size * 0.1f, 0.1f);
-        MANAGER.PlayerSize = _size;
+		transform.localScale += new Vector3(val, val, 0.1f);
+        MANAGER.PlayerSize += val;
 
         GameObject[] tabEnemy = GameObject.FindGameObjectsWithTag("Enemy");
         foreach (GameObject go in tabEnemy)
         {
             go.GetComponent<SatelliteScript>().CheckPlayerSize();
         }
+
+		GameObject[] tabWeak = GameObject.FindGameObjectsWithTag("Weak");
+		foreach (GameObject go in tabWeak)
+		{
+			go.GetComponent<SatelliteScript>().CheckPlayerSize();
+		}
 
     }
 

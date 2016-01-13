@@ -1,0 +1,73 @@
+using UnityEngine;
+using System.Collections;
+
+public class PlayerScript : MonoBehaviour {
+
+    [HideInInspector]
+    public Rigidbody2D _rBody;
+
+    public Vector2 _Direction;
+    public float _Speed = 10;
+    public float _Factor = 0.1f;
+
+	[Range(1, 40)]
+    public float _size = 10;
+	
+
+	// Use this for initialization
+	void Start ()
+    {
+        _rBody = GetComponent<Rigidbody2D>();
+        _Direction = Vector2.zero;
+        MANAGER.PlayerSize = _size;
+
+		//float _sizeToApply = _size * (1f / 3f); //Modify size based on the playerSize int & the local scale (so if you wanna chanche the minimum scale you can)
+		//transform.localScale = new Vector3(_sizeToApply, _sizeToApply, 1);
+	}
+	
+	// Update is called once per frame
+	void Update ()
+    {
+        Movement();
+	}
+
+    public void ChangeSize(float val)
+    {
+        _size += val;
+        transform.localScale = new Vector3(_size * 0.1f, _size * 0.1f, 0.1f);
+        MANAGER.PlayerSize = _size;
+
+        GameObject[] tabEnemy = GameObject.FindGameObjectsWithTag("Enemy");
+        foreach (GameObject go in tabEnemy)
+        {
+            go.GetComponent<SatelliteScript>().CheckPlayerSize();
+        }
+
+    }
+
+    void Movement()
+    {
+        _Direction = Vector2.zero;
+
+        if (Input.GetKey(KeyCode.Z))
+        {
+            _Direction.y += _Speed;
+        }
+        if (Input.GetKey(KeyCode.S))
+        {
+            _Direction.y += -_Speed;
+        }
+        if (Input.GetKey(KeyCode.Q))
+        {
+            _Direction.x = -_Speed;
+        }
+        if (Input.GetKey(KeyCode.D))
+        {
+            _Direction.x = _Speed;
+        }
+
+        _rBody.velocity = Vector2.Lerp(_rBody.velocity, _Direction, _Factor);
+    }
+
+
+}

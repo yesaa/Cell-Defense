@@ -25,17 +25,19 @@ public class SatelliteManager : MonoBehaviour {
 	int i;
 
 	//paliers
-	public int enemyToEat=4;
-	public int enemyEaten=0;
+	public int enemyToEat;
+	public int enemyEaten;
    
 
 	void Start ()
     {
         tmr = 0;
+		enemyToEat = 4;
+		enemyEaten = 0;
     }
 	
-	void Update ()
-    {
+	void Update (){
+		
 
         distance = MANAGER.PlayerSize * 0.15f;
         transform.position = _Player.transform.position;
@@ -98,7 +100,7 @@ public class SatelliteManager : MonoBehaviour {
                 ListBusy.RemoveAt(CheckBusy());
 				if (enemyEaten>=enemyToEat)
 				{
-				_Player.GetComponent<PlayerScript>().ChangeSize(toDestroy.GetComponent<SatelliteScript>().health * 0.5f);
+				_Player.GetComponent<PlayerScript>().ChangeSize(0.25F);
 				enemyToEat++;
 				enemyEaten=0;
 				}
@@ -167,7 +169,7 @@ public class SatelliteManager : MonoBehaviour {
 		if (ListFollowers.Count < 1) {
 			GameObject go = GameObject.Find("Player");
 			PlayerScript function = (PlayerScript) go.GetComponent(typeof(PlayerScript));
-			function.ChangeSize(-1);
+			function.ChangeSize(-0.25F);
 			enemyToEat--;//paliers
 		
 		}

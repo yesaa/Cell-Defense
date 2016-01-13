@@ -1,0 +1,161 @@
+using UnityEngine;
+using System.Collections;
+
+public class SatelliteScript : MonoBehaviour {
+
+    public float health = 100;
+    public Sprite[] stateMat;     // 0 = Enemy | 1 = Weak | 2 = Ally;
+    public int _state;              // 0 = Enemy | 1 = Weak | 2 = Ally;
+    public bool busy;
+    public bool atkDone;
+
+    [HideInInspector]
+    public Vector3 _origin;
+    private Vector3 _target;
+    private float _speed;
+    private bool goTrue;
+	private bool hit;
+
+    public float ForceBump = 5;
+
+
+	void Start ()
+    {
+        busy = false;
+        atkDone = false;
+        goTrue = false;
+		hit = true;
+        transform.localScale = new Vector3(health * 0.1f, health * 0.1f, 1f);
+
+        CheckPlayerSize();
+    }
+	
+	void Update ()
+    {
+        if (busy) // en cours d'attaque
+        {
+            if (goTrue) //Se déplace vers le point cliqué
+            {
+                transform.position = transform.position + ((_target - transform.position).normalized * _speed * Time.deltaTime);
+                if ((_target - transform.position).magnitude < 0.25f)
+                {
+                    goTrue = false;
+					hit = false;
+					StartCoroutine (CheckHit());
+                }
+            }
+            else if(atkDone)// revient vers le player
+            {
+                transform.position = transform.position + ((_origin - transform.position).normalized * _speed * Time.deltaTime);
+                if ((_origin - transform.position).magnitude < 2f)
+                {
+                    busy = false;
+                    atkDone = false;
+                    gameObject.layer = 10;
+                    //Debug.Log("Busy False");
+                }
+            }
+            
+            
+        }
+	}
+
+	IEnumerator CheckHit(){
+		
+		yield return new WaitForSeconds(5);
+		Debug.Log (hit);
+
+
+		// On veux supprimer le projectile si hit est faux donc on valide la condition !hit si hit est faux
+		if (!hit) {
+			Debug.Log ("WTH");
+
+			/*GameObject go = GameObject.Find("SatManager");
+			SatelliteManager function = (SatelliteManager) go.GetComponent(typeof(SatelliteManager));
+			function.removeElement(this.transform);
+			*/
+			this.gameObject.tag="Weak";
+			hit = true;
+			busy = false;
+			Destroy (this.gameObject);
+		
+		}
+	
+	}
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        if ((other.transform.tag == "Enemy" || other.transform.tag == "Weak") && tag == "Satellite")
+        {
+            if(!atkDone && busy)
+            {
+                other.transform.GetComponent<SatelliteScript>().ChangeHealth(Mathf.RoundToInt(-health * 0.5f));
+                atkDone = true;
+				hit = true;
+
+            }
+        }
+
+        if (other.transform.tag == "Enemy" && transform.tag == "Enemy")
+        {
+            Vector2 value = new Vector2(transform.position.x - other.transform.position.x, transform.position.y - other.transform.position.y);
+            GetComponent<Rigidbody2D>().AddForce(value * ForceBump, ForceMode2D.Impulse);
+            print("Collision Satelite => enemy");
+        }
+
+    }
+
+    public void CheckPlayerSize()
+    {
+        if (health <= MANAGER.PlayerSize * 0.5f)
+        {
+            ChangeState(1);
+            gameObject.layer = 11;
+        }
+    }
+
+    public void ChangeHealth(int value)
+    {
+        if (health == 5)
+        {
+            gameObject.SetActive(false);
+        } 
+        health += value;
+        CheckPlayerSize();
+        health = Mathf.Clamp(health, 5, 1000);
+        transform.localScale = new Vector3(health * 0.1f, health * 0.1f, 1f);
+    }
+
+    public void ChangeState(int newState)
+    {
+        _state = newState;
+        GetComponent<SpriteRenderer>().sprite = stateMat[_state];
+        if (_state == 0)
+        {
+            tag = "Enemy";
+        }
+        if (_state == 1)
+        {
+            tag = "Weak";
+        }
+        if (_state == 2)
+        {
+            tag = "Satellite";
+        }
+        //tag = UnityEditorInternal.InternalEditorUtility.tags[7+_state];
+        if(_state == 2)
+        {
+            busy = false;
+            atkDone = false;
+        }
+    }
+
+    public void Attack(Vector3 target, float speed)
+    {
+        busy = true;
+        goTrue = true;
+        gameObject.layer = 13;
+        _target = target;
+        _speed = speed;
+    }
+}

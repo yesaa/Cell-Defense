@@ -3,7 +3,7 @@ using System.Collections;
 
 public class SatelliteScript : MonoBehaviour {
 
-    public float health = 100;
+	public float health;
     public Sprite[] stateMat;     // 0 = Enemy | 1 = Weak | 2 = Ally;
     public int _state;              // 0 = Enemy | 1 = Weak | 2 = Ally;
     public bool busy;
@@ -21,17 +21,20 @@ public class SatelliteScript : MonoBehaviour {
 
 	void Start ()
     {
+		health = transform.localScale.x;
+
         busy = false;
         atkDone = false;
         goTrue = false;
 		hit = true;
-        transform.localScale = new Vector3(health * 0.1f, health * 0.1f, 1f);
+        transform.localScale = new Vector3(health, health, 1f);
 
         CheckPlayerSize();
     }
 	
 	void Update ()
     {
+		Debug.Log (hit);
         if (busy) // en cours d'attaque
         {
             if (goTrue) //Se déplace vers le point cliqué
@@ -40,7 +43,6 @@ public class SatelliteScript : MonoBehaviour {
                 if ((_target - transform.position).magnitude < 0.25f)
                 {
                     goTrue = false;
-					hit = false;
 					StartCoroutine (CheckHit());
                 }
             }
@@ -62,6 +64,7 @@ public class SatelliteScript : MonoBehaviour {
 
 	IEnumerator CheckHit(){
 		
+		hit = false;
 		yield return new WaitForSeconds(5);
 		Debug.Log (hit);
 
@@ -75,7 +78,6 @@ public class SatelliteScript : MonoBehaviour {
 			function.removeElement(this.transform);
 			*/
 			this.gameObject.tag="Weak";
-			hit = true;
 			busy = false;
 			Destroy (this.gameObject);
 		
@@ -89,6 +91,7 @@ public class SatelliteScript : MonoBehaviour {
         {
             if(!atkDone && busy)
             {
+				Debug.Log ("touché");
                 other.transform.GetComponent<SatelliteScript>().ChangeHealth(Mathf.RoundToInt(-health * 0.5f));
                 atkDone = true;
 				hit = true;
@@ -107,7 +110,7 @@ public class SatelliteScript : MonoBehaviour {
 
     public void CheckPlayerSize()
     {
-        if (health <= MANAGER.PlayerSize * 0.5f)
+        if (health < MANAGER.PlayerSize)
         {
             ChangeState(1);
             gameObject.layer = 11;

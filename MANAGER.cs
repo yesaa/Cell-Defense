@@ -36,7 +36,31 @@ public class MANAGER : MonoBehaviour {
 	
 		}
 		Debug.Log ("Spawned = " + health);
-		Vector3 pos = new Vector3 (Camera.main.transform.position.x + Random.Range(-10,10), Camera.main.transform.position.y + Random.Range(-10,10), 0);
+		float x = Camera.main.transform.position.x + Random.Range (-10, 10);
+		float y = Camera.main.transform.position.y + Random.Range (-10, 10);
+
+
+		if (x < PlayerSize / 2 && x > -PlayerSize / 2 && x >= 0) {
+
+			x = PlayerSize / 2 + 1;		
+		}
+
+		if (x < PlayerSize / 2 && x > -PlayerSize / 2 && x < 0) {
+
+			x = -PlayerSize / 2 - 1;		
+		}
+
+		if (y < PlayerSize / 2 && y > -PlayerSize / 2 && y >= 0) {
+
+			y = PlayerSize / 2 + 1;		
+		}
+
+		if (y < PlayerSize / 2 && y > -PlayerSize / 2 && y < 0) {
+
+			y = -PlayerSize / 2 - 1;		
+		}
+
+		Vector3 pos = new Vector3 (x, y, 0);
 		GameObject ennemy =  (GameObject)Instantiate (prefab, pos, Quaternion.identity);
 		ennemy.GetComponent<SatelliteScript> ().health = health;
 		ennemy.transform.localScale = new Vector3(health, health, health);

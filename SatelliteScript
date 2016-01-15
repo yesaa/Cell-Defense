@@ -18,7 +18,7 @@ public class SatelliteScript : MonoBehaviour {
 	public float ForceBump = 5;
 
 
-	Coroutine hit;
+	//Coroutine hit;
 
 
 	void Start ()
@@ -50,15 +50,19 @@ public class SatelliteScript : MonoBehaviour {
 					tag = "Weak";
 
 					//Permet de garder une trace de la coroutine pour pouvoir l'arrêter
-					hit = StartCoroutine (CheckHit());
+					//hit = StartCoroutine (CheckHit());
+					Invoke("CheckHit",5);
 
 				}
 			}
 			else if(atkDone)// revient vers le player
 			{
 				transform.position = transform.position + ((_origin - transform.position).normalized * _speed * Time.deltaTime);
-				if ((_origin - transform.position).magnitude < 2f)
+				if ((_origin - transform.position).magnitude < 2)
 				{
+					GameObject.Find ("SatManager").GetComponent<SatelliteManager>().ListFollowers.Add(transform);
+					GameObject.Find ("SatManager").GetComponent<SatelliteManager>().ListBusy.Add(false);
+					CancelInvoke();
 					busy = false;
 					atkDone = false;
 					gameObject.layer = 10;
@@ -70,13 +74,19 @@ public class SatelliteScript : MonoBehaviour {
 		}
 	}
 
+	/*
 	IEnumerator CheckHit(){
 		yield return new WaitForSeconds(5);
 
 		Destroy (this.gameObject);
 
 	}
-		
+	*/
+	void CheckHit(){
+	
+		Destroy (this.gameObject);
+	
+	}
 
 	void OnCollisionEnter2D(Collision2D other)
 	{
@@ -87,7 +97,8 @@ public class SatelliteScript : MonoBehaviour {
 				Debug.Log ("touché");
 				other.transform.GetComponent<SatelliteScript>().ChangeHealth(-0.25F);
 				atkDone = true;
-				StopCoroutine (hit);
+				//StopCoroutine (hit);
+
 
 			}
 		}
@@ -146,7 +157,8 @@ public class SatelliteScript : MonoBehaviour {
 		if (_state == 2)
 		{
 			tag = "Satellite";
-			StopCoroutine (hit);
+			//StopCoroutine (hit);
+			CancelInvoke();
 		}
 		//tag = UnityEditorInternal.InternalEditorUtility.tags[7+_state];
 		if(_state == 2)

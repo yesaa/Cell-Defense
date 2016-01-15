@@ -43,6 +43,7 @@ public class SatelliteManager : MonoBehaviour {
 		transform.position = _Player.transform.position;
 		transform.Rotate(transform.forward * rotSpeed * Time.deltaTime);
 		cnt = ListFollowers.Count;
+		//Debug.Log (cnt);
 		for(int i = 0; i < cnt; i++)
 		{
 			if (!ListFollowers[i]){
@@ -61,7 +62,7 @@ public class SatelliteManager : MonoBehaviour {
 		}
 
 
-		if (Input.GetMouseButtonDown(0))
+		/*if (Input.GetMouseButtonDown(0))
 		{
 			tmr += Time.deltaTime;
 			if (tmr >= attackDelay)
@@ -76,7 +77,7 @@ public class SatelliteManager : MonoBehaviour {
 
 				}
 			}
-		}
+		}*/
 		if (Input.GetMouseButtonDown(0))
 		{
 			tmr = 0;
@@ -86,6 +87,8 @@ public class SatelliteManager : MonoBehaviour {
 			if (CheckBusy() > -1)
 			{
 				ListFollowers[CheckBusy()].GetComponent<SatelliteScript>().Attack(_aim, speedAttack);
+				ListFollowers.RemoveAt(CheckBusy());
+				ListBusy.RemoveAt(CheckBusy());
 			}          
 		}
 
@@ -167,6 +170,7 @@ public class SatelliteManager : MonoBehaviour {
 			foreach (GameObject go in tabSat) {
 				go.tag = "Enemy";
 				go.GetComponent<SatelliteScript> ().CheckPlayerSize ();
+				go.GetComponent<SatelliteScript> ().Invoke("CheckHit",5);
 			}
 
 			ListFollowers.Clear();

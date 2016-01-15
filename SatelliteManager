@@ -3,112 +3,112 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class SatelliteManager : MonoBehaviour {
-    public float distance = 8;
-    public List<Transform> ListFollowers;
-    public List<bool> ListBusy;
-    public GameObject _Player;
-    private int cnt;
-    public float rotSpeed = 45;
-    public Material FollowMat;
+	public float distance = 8;
+	public List<Transform> ListFollowers;
+	public List<bool> ListBusy;
+	public GameObject _Player;
+	private int cnt;
+	public float rotSpeed = 45;
+	public Material FollowMat;
 
-    public float speedAttack = 5;
-    public float attackDelay = 0.5f;
-    private float tmr;
+	public float speedAttack = 5;
+	public float attackDelay = 0.5f;
+	private float tmr;
 
-    public float ForceBump = 10;
+	public float ForceBump = 10;
 
-   [HideInInspector]
-    public Vector3 _aim;
+	[HideInInspector]
+	public Vector3 _aim;
 
-    private Ray ray;
-    private RaycastHit hit;
+	private Ray ray;
+	private RaycastHit hit;
 	int i;
 
 	//paliers
 	public int enemyToEat;
 	public int enemyEaten;
-   
+
 
 	void Start ()
-    {
-        tmr = 0;
+	{
+		tmr = 0;
 		enemyToEat = 4;
 		enemyEaten = 0;
-    }
-	
-	void Update (){
-		
+	}
 
-        distance = MANAGER.PlayerSize * 0.15f;
-        transform.position = _Player.transform.position;
-        transform.Rotate(transform.forward * rotSpeed * Time.deltaTime);
-        cnt = ListFollowers.Count;
-        for(int i = 0; i < cnt; i++)
-        {
+	void Update (){
+
+
+		distance = MANAGER.PlayerSize + 1;
+		transform.position = _Player.transform.position;
+		transform.Rotate(transform.forward * rotSpeed * Time.deltaTime);
+		cnt = ListFollowers.Count;
+		for(int i = 0; i < cnt; i++)
+		{
 			if (!ListFollowers[i]){
 				ListBusy.RemoveAt(i);
 				ListFollowers.RemoveAt(i);
 			}else {
-	            ListBusy[i] = ListFollowers[i].GetComponent<SatelliteScript>().busy;
-	            Vector3 targetpos = (transform.position + Quaternion.AngleAxis(360 / cnt * i, transform.forward) * transform.right * distance);
-	            if (!ListBusy[i])
-	            {
-	                ListFollowers[i].position = Vector3.Lerp(ListFollowers[i].position, targetpos, 0.8f);
-	            }
-	            ListFollowers[i].GetComponent<SatelliteScript>()._origin = targetpos;
-	            ListFollowers[i].eulerAngles = Vector3.zero;
+				ListBusy[i] = ListFollowers[i].GetComponent<SatelliteScript>().busy;
+				Vector3 targetpos = (transform.position + Quaternion.AngleAxis(360 / cnt * i, transform.forward) * transform.right * distance);
+				if (!ListBusy[i])
+				{
+					ListFollowers[i].position = Vector3.Lerp(ListFollowers[i].position, targetpos, 0.8f);
+				}
+				ListFollowers[i].GetComponent<SatelliteScript>()._origin = targetpos;
+				ListFollowers[i].eulerAngles = Vector3.zero;
 			}
-        }
+		}
 
 
-        if (Input.GetMouseButton(0))
-        {
-            tmr += Time.deltaTime;
-            if (tmr >= attackDelay)
-            {
-                tmr = -attackDelay;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                Physics.Raycast(ray, out hit, 1000, 1 << 8);
-                _aim = hit.point;
-                if (CheckBusy() > -1)
-                {
-                    ListFollowers[CheckBusy()].GetComponent<SatelliteScript>().Attack(_aim, speedAttack);
+		if (Input.GetMouseButtonDown(0))
+		{
+			tmr += Time.deltaTime;
+			if (tmr >= attackDelay)
+			{
+				tmr = -attackDelay;
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+				Physics.Raycast(ray, out hit, 1000, 1 << 8);
+				_aim = hit.point;
+				if (CheckBusy() > -1)
+				{
+					ListFollowers[CheckBusy()].GetComponent<SatelliteScript>().Attack(_aim, speedAttack);
 
-                }
-            }
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            tmr = 0;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Physics.Raycast(ray, out hit, 1000, 1 << 8);
-            _aim = hit.point;
-            if (CheckBusy() > -1)
-            {
-                ListFollowers[CheckBusy()].GetComponent<SatelliteScript>().Attack(_aim, speedAttack);
-            }          
-        }
+				}
+			}
+		}
+		if (Input.GetMouseButtonDown(0))
+		{
+			tmr = 0;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			Physics.Raycast(ray, out hit, 1000, 1 << 8);
+			_aim = hit.point;
+			if (CheckBusy() > -1)
+			{
+				ListFollowers[CheckBusy()].GetComponent<SatelliteScript>().Attack(_aim, speedAttack);
+			}          
+		}
 
-        if(Input.GetKeyDown(KeyCode.E))//manger satellite
-        {
+		if(Input.GetKeyDown(KeyCode.E))//manger satellite
+		{
 			enemyEaten++;
-            Transform toDestroy;
-            if (CheckBusy() > -1)
-            {
-                toDestroy = ListFollowers[CheckBusy()];
-                ListFollowers.RemoveAt(CheckBusy());
-                ListBusy.RemoveAt(CheckBusy());
+			Transform toDestroy;
+			if (CheckBusy() > -1)
+			{
+				toDestroy = ListFollowers[CheckBusy()];
+				ListFollowers.RemoveAt(CheckBusy());
+				ListBusy.RemoveAt(CheckBusy());
 				if (enemyEaten>=enemyToEat)
 				{
-				_Player.GetComponent<PlayerScript>().ChangeSize(0.25F);
-				enemyToEat++;
-				enemyEaten=0;
+					_Player.GetComponent<PlayerScript>().ChangeSize(0.25F);
+					enemyToEat++;
+					enemyEaten=0;
 				}
-                Destroy(toDestroy.gameObject);
-            }
-        }
+				Destroy(toDestroy.gameObject);
+			}
+		}
 
-    }
+	}
 
 	/*public void removeElement(Transform trans){
 	
@@ -118,73 +118,85 @@ public class SatelliteManager : MonoBehaviour {
 	
 	}*/
 
-    void OnCollisionEnter2D(Collision2D other)
-    {
-        if (other.transform.tag == "Weak")
-        {
-            ListFollowers.Add(other.transform);
-            ListBusy.Add(false);
-            other.transform.GetComponent<SatelliteScript>().ChangeState(2);
-            other.gameObject.layer = 10;
-        }
-        if (other.transform.tag == "Enemy")
-        {
-            Vector2 value = new Vector2(transform.position.x - other.transform.position.x, transform.position.y - other.transform.position.y);
-            _Player.GetComponent<Rigidbody2D>().AddForce(value * ForceBump, ForceMode2D.Impulse);
-            LoseSatellite();
-        }
+	void OnCollisionEnter2D(Collision2D other)
+	{
+		if (other.transform.tag == "Weak")
+		{
+			ListFollowers.Add(other.transform);
+			ListBusy.Add(false);
+			other.transform.GetComponent<SatelliteScript>().ChangeState(2);
+			other.gameObject.layer = 10;
+		}
+		if (other.transform.tag == "Enemy")
+		{
+			Vector2 value = new Vector2(transform.position.x - other.transform.position.x, transform.position.y - other.transform.position.y);
+			_Player.GetComponent<Rigidbody2D>().AddForce(value * ForceBump, ForceMode2D.Impulse);
+			LoseSatellite();
+		}
 
-    }
+	}
 
 	void LoseSatellite()   // a changer pour perdre tous les satellites
-    {
-        if (CheckBusy() > -1) 
-        {
-            /*Transform toLoose = ListFollowers[CheckBusy()];
+	{
+		/*if (CheckBusy() > -1) 
+		{
+			/*Transform toLoose = ListFollowers[CheckBusy()];
             ListFollowers.RemoveAt(CheckBusy());
             ListBusy.RemoveAt(CheckBusy());            
             Vector2 value = new Vector2(toLoose.transform.position.x - transform.position.x, toLoose.transform.position.y - transform.position.y);
             toLoose.GetComponent<Rigidbody2D>().AddForce(value.normalized * 7.5f, ForceMode2D.Impulse);
             toLoose.gameObject.layer = 11;
-            toLoose.tag = "Weak";*/
+            toLoose.tag = "Weak";/*
 
 			int max = ListFollowers.Count;
 			for (int i = 0; i < max; i++){
+				Debug.Log (CheckBusy);
 				Transform toLoose = ListFollowers[i];
-				ListFollowers.RemoveAt(CheckBusy());
-				ListBusy.RemoveAt(CheckBusy());            
+				ListFollowers.RemoveAt(i);
+				ListBusy.RemoveAt(i);            
 				Vector2 value = new Vector2(toLoose.transform.position.x - transform.position.x, toLoose.transform.position.y - transform.position.y);
 				toLoose.GetComponent<Rigidbody2D>().AddForce(value.normalized * 7.5f, ForceMode2D.Impulse);
 				toLoose.gameObject.layer = 11;
 				toLoose.tag = "Weak";
 
-			}
+			}*/
 
+		if (ListFollowers.Count >= 1) {
+			
+			GameObject[] tabSat = GameObject.FindGameObjectsWithTag ("Satellite");
+			foreach (GameObject go in tabSat) {
+				go.tag = "Enemy";
+				go.GetComponent<SatelliteScript> ().CheckPlayerSize ();
+			}
 
 			ListFollowers.Clear();
 			ListBusy.Clear();
 
+		}
 
-        }
-		if (ListFollowers.Count < 1) {
+
+		//}
+
+
+		else {
 			GameObject go = GameObject.Find("Player");
 			PlayerScript function = (PlayerScript) go.GetComponent(typeof(PlayerScript));
 			function.ChangeSize(-0.25F);
 			enemyToEat--;//paliers
-		
+
 		}
 
-    }
+	}
 
 
-    int CheckBusy()
-    {
-        for (int i = 0; i < ListBusy.Count; i++)
-        {
-            if (ListBusy[i] == false)
-                return i;
-        }
-        return -1;
-    }
+	int CheckBusy()
+	{
+		for (int i = 0; i < ListBusy.Count; i++)
+		{
+			if (ListBusy[i] == false)
+				return i;
+		}
+		return -1;
+	}
 
 }

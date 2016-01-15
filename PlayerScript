@@ -43,12 +43,14 @@ public class PlayerScript : MonoBehaviour {
 		{
 			go.GetComponent<SatelliteScript>().CheckPlayerSize();
 		}
+			
+			GameObject[] tabWeak = GameObject.FindGameObjectsWithTag ("Weak");
 
-		GameObject[] tabWeak = GameObject.FindGameObjectsWithTag("Weak");
-		foreach (GameObject go in tabWeak)
-		{
-			go.GetComponent<SatelliteScript>().CheckPlayerSize();
+		//Debug.Log (tabWeak.Length);
+		foreach (GameObject goo in tabWeak) {
+			goo.GetComponent<SatelliteScript> ().CheckPlayerSize ();
 		}
+
 
 	}
 
